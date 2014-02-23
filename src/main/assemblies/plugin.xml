@@ -10,9 +10,6 @@
             <useProjectArtifact>true</useProjectArtifact>
             <unpack>false</unpack>
             <scope>compile</scope>
-            <includes>
-                <include>org.alg.elasticsearch.plugin</include>
-            </includes>
         </dependencySet>
     </dependencySets>
 </assembly>

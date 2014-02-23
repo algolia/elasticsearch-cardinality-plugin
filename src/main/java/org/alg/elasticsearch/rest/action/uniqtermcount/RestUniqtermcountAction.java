@@ -1,5 +1,5 @@
 
-package org.elasticsearch.rest.action.uniqtermcount;
+package org.alg.elasticsearch.rest.action.uniqtermcount;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
 import static org.elasticsearch.rest.RestStatus.OK;

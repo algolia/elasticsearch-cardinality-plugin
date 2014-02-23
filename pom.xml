@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.xbib.elasticsearch.plugin</groupId>
+    <groupId>org.alg.elasticsearch.plugin</groupId>
     <artifactId>elasticsearch-uniqtermcount</artifactId>
     <version>1.0.0</version>
 
