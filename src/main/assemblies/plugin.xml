@@ -1,0 +1,18 @@
+<assembly>
+    <id>plugin</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <unpack>false</unpack>
+            <scope>compile</scope>
+            <includes>
+                <include>org.alg.elasticsearch.plugin</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
