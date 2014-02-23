@@ -146,7 +146,7 @@ public class SimpleTests extends Assert {
     }
 
     @Test
-    public void assertTermCountAggregatorInexistentField() {
+    public void assertTermCountAggregatorLotsOfEmptyShard() {
         // create index 'test4'
         client.admin().indices().prepareCreate("test6").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
         
@@ -160,5 +160,24 @@ public class SimpleTests extends Assert {
         Uniqtermcount count0 = searchResponse.getAggregations().get("uniq0");
         assertNotNull(count0);
         assertEquals(0, count0.getValue());
+    }
+
+    @Test
+    public void assertTermCountAggregatorInexistentField() {
+        // create index 'test4'
+        client.admin().indices().prepareCreate("test7").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
+        
+        for (int i = 0; i < 100; ++i) {
+            client.prepareIndex("test7", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
+        }
+        client.prepareIndex("test7", "type0", "doc1").setSource("field1", 1).setRefresh(true).execute().actionGet();
+    
+        SearchResponse searchResponse = client.prepareSearch("test7")
+                .setQuery(matchAllQuery())
+                .addAggregation(new UniqtermcountBuilder("uniq0").field("field1"))
+                .execute().actionGet();
+        Uniqtermcount count0 = searchResponse.getAggregations().get("uniq0");
+        assertNotNull(count0);
+        assertEquals(1, count0.getValue());
     }
 }

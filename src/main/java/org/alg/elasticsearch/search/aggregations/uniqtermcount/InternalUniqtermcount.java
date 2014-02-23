@@ -66,9 +66,10 @@ public class InternalUniqtermcount extends InternalAggregation implements Uniqte
                     HyperLogLogPlus c = ((InternalUniqtermcount) aggregation).counter;
                     if (c != null) {
                         if (reduced.counter == null) {
-                            reduced.counter = new HyperLogLogPlus(15, 15);
+                            reduced.counter = c;
+                        } else {
+                            reduced.counter.merge(c);
                         }
-                        reduced.counter.merge(c);
                     }
                 } catch (CardinalityMergeException e) {
                     throw new Error("HyperLogLog merge failed", e);
