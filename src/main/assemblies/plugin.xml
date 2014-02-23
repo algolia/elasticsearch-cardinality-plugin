@@ -8,8 +8,10 @@
         <dependencySet>
             <outputDirectory>/</outputDirectory>
             <useProjectArtifact>true</useProjectArtifact>
-            <unpack>false</unpack>
-            <scope>compile</scope>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+			<excludes>
+				<exclude>org.elasticsearch:elasticsearch</exclude>
+			</excludes>
         </dependencySet>
     </dependencySets>
 </assembly>

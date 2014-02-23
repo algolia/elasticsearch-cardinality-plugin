@@ -4,9 +4,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.alg.elasticsearch.plugin</groupId>
-    <artifactId>elasticsearch-uniqtermcount</artifactId>
-    <version>1.0.0</version>
+    <groupId>org.alg.elasticsearch</groupId>
+    <artifactId>elasticsearch-uniqtermcount-plugin</artifactId>
+    <version>0.0.1</version>
 
     <packaging>jar</packaging>
 
