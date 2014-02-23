@@ -33,7 +33,6 @@ import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
 
 import com.clearspring.analytics.stream.cardinality.HyperLogLogPlus;
-import com.clearspring.analytics.stream.cardinality.ICardinality;
 
 /**
  * Uniqtermcount index/indices action.
@@ -70,7 +69,7 @@ public class TransportUniqtermcountAction
         int successfulShards = 0;
         int failedShards = 0;
         List<ShardOperationFailedException> shardFailures = null;
-        ICardinality merged = new HyperLogLogPlus(15, 15);
+        HyperLogLogPlus merged = new HyperLogLogPlus(15, 15);
         for (int i = 0; i < shardsResponses.length(); i++) {
             Object shardResponse = shardsResponses.get(i);
             if (shardResponse instanceof BroadcastShardOperationFailedException) {
@@ -84,7 +83,7 @@ public class TransportUniqtermcountAction
                 if (shardResponse instanceof ShardUniqtermcountResponse) {
                     ShardUniqtermcountResponse resp = (ShardUniqtermcountResponse) shardResponse;
                     try {
-                        merged = merged.merge(resp.getCounter());
+                        merged.addAll(resp.getCounter());
                     } catch (Exception e) {
                         shardFailures.add(new DefaultShardOperationFailedException(resp.getIndex(), i, e));
                     }

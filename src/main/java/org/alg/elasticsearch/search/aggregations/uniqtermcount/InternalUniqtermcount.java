@@ -68,7 +68,7 @@ public class InternalUniqtermcount extends InternalAggregation implements Uniqte
                         if (reduced.counter == null) {
                             reduced.counter = c;
                         } else {
-                            reduced.counter.merge(c);
+                            reduced.counter.addAll(c);
                         }
                     }
                 } catch (CardinalityMergeException e) {
