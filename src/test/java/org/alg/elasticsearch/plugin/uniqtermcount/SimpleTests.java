@@ -153,13 +153,12 @@ public class SimpleTests extends Assert {
         client.prepareIndex("test6", "type0", "doc0").setSource("field0", 42).execute().actionGet();
         client.prepareIndex("test6", "type0", "doc1").setSource("field1", 0).setRefresh(true).execute().actionGet();
     
-        // org.elasticsearch.action.search.SearchPhaseExecutionException: Failed to execute phase [query_fetch], all shards failed; shardFailures {[GccigdGtRc6qAIw-kyMIbQ][test6][0]: NullPointerException[null]}
-//        SearchResponse searchResponse = client.prepareSearch("test6")
-//                .setQuery(matchAllQuery())
-//                .addAggregation(new UniqtermcountBuilder("uniq0").field("field_inexistent"))
-//                .execute().actionGet();
-//        Uniqtermcount count0 = searchResponse.getAggregations().get("uniq0");
-//        assertNotNull(count0);
-//        assertEquals(0, count0.getValue());
+        SearchResponse searchResponse = client.prepareSearch("test6")
+                .setQuery(matchAllQuery())
+                .addAggregation(new UniqtermcountBuilder("uniq0").field("field_inexistent"))
+                .execute().actionGet();
+        Uniqtermcount count0 = searchResponse.getAggregations().get("uniq0");
+        assertNotNull(count0);
+        assertEquals(0, count0.getValue());
     }
 }

@@ -65,7 +65,7 @@ public class UniqtermcountAggregator extends SingleBucketAggregator {
 
     @Override
     public InternalAggregation buildAggregation(long owningBucketOrdinal) {
-        return new InternalUniqtermcount(name, counters.get(owningBucketOrdinal));
+        return new InternalUniqtermcount(name, counters == null ? null : counters.get(owningBucketOrdinal));
     }
 
     @Override
