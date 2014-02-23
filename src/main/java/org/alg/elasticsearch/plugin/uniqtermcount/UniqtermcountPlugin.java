@@ -3,6 +3,7 @@ package org.alg.elasticsearch.plugin.uniqtermcount;
 import org.alg.elasticsearch.action.uniqtermcount.TransportUniqtermcountAction;
 import org.alg.elasticsearch.action.uniqtermcount.UniqtermcountAction;
 import org.alg.elasticsearch.rest.action.uniqtermcount.RestUniqtermcountAction;
+import org.alg.elasticsearch.search.aggregations.uniqtermcount.InternalUniqtermcount;
 import org.alg.elasticsearch.search.aggregations.uniqtermcount.UniqtermcountParser;
 import org.elasticsearch.action.ActionModule;
 import org.elasticsearch.plugins.AbstractPlugin;
@@ -29,6 +30,7 @@ public class UniqtermcountPlugin extends AbstractPlugin {
     
     public void onModule(AggregationModule module) {
         module.addAggregatorParser(UniqtermcountParser.class);
+        InternalUniqtermcount.registerStreams();
     }
 
 }
