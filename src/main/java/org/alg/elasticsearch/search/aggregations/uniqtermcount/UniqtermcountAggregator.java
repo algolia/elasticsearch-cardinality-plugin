@@ -59,7 +59,7 @@ public class UniqtermcountAggregator extends SingleBucketAggregator {
 
         final int valuesCount = values.setDocument(doc);
         for (int i = 0; i < valuesCount; i++) {
-            counter.offer(values.nextValue().utf8ToString());
+            counter.offer(values.nextValue());
         }
     }
 
