@@ -63,7 +63,13 @@ public class InternalUniqtermcount extends InternalAggregation implements Uniqte
                 reduced = (InternalUniqtermcount) aggregation;
             } else {
                 try {
-                    reduced.counter.merge(((InternalUniqtermcount) aggregation).counter);
+                    HyperLogLogPlus c = ((InternalUniqtermcount) aggregation).counter;
+                    if (c != null) {
+                        if (reduced.counter == null) {
+                            reduced.counter = new HyperLogLogPlus(15, 15);
+                        }
+                        reduced.counter.merge(c);
+                    }
                 } catch (CardinalityMergeException e) {
                     throw new Error("HyperLogLog merge failed", e);
                 }
@@ -78,18 +84,25 @@ public class InternalUniqtermcount extends InternalAggregation implements Uniqte
     @Override
     public void readFrom(StreamInput in) throws IOException {
         name = in.readString();
-        int n = in.readInt();
-        byte[] bytes = new byte[n];
-        in.read(bytes);
-        counter = HyperLogLogPlus.Builder.build(bytes);
+        if (in.readBoolean()) {
+            int n = in.readInt();
+            byte[] bytes = new byte[n];
+            in.read(bytes);
+            counter = HyperLogLogPlus.Builder.build(bytes);
+        }
     }
 
     @Override
     public void writeTo(StreamOutput out) throws IOException {
         out.writeString(name);
-        byte[] bytes = counter.getBytes();
-        out.writeInt(bytes.length);
-        out.write(bytes);
+        if (counter != null) {
+            out.writeBoolean(true);
+            byte[] bytes = counter.getBytes();
+            out.writeInt(bytes.length);
+            out.write(bytes);
+        } else {
+            out.writeBoolean(false);
+        }
     }
 
     @Override
