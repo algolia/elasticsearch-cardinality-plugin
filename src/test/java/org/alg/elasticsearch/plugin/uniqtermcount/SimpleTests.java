@@ -4,6 +4,10 @@ import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilde
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.alg.elasticsearch.action.uniqtermcount.UniqtermcountAction;
 import org.alg.elasticsearch.action.uniqtermcount.UniqtermcountRequest;
 import org.alg.elasticsearch.action.uniqtermcount.UniqtermcountResponse;
@@ -18,15 +22,10 @@ import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
-import org.junit.Ignore;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 public class SimpleTests extends Assert {
 
@@ -151,7 +150,6 @@ public class SimpleTests extends Assert {
 
     @Test
     public void assertTermCountAggregatorLotsOfEmptyShard() {
-        // create index 'test4'
         client.admin().indices().prepareCreate("test6").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
         
         client.prepareIndex("test6", "type0", "doc0").setSource("field0", 42).execute().actionGet();
@@ -168,7 +166,6 @@ public class SimpleTests extends Assert {
 
     @Test
     public void assertTermCountAggregatorInexistentField() {
-        // create index 'test4'
         client.admin().indices().prepareCreate("test7").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
         
         for (int i = 0; i < 100; ++i) {
@@ -187,13 +184,12 @@ public class SimpleTests extends Assert {
 
     @Test
     public void assertTermCountAggregatorStressTestOneShard() {
-        // create index 'test4'
         client.admin().indices().prepareCreate("test8").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
 
-        for (int i = 0; i < 1000000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             client.prepareIndex("test8", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
         }
-        for (int i = 1000000; i < 2000000; ++i) {
+        for (int i = 100000; i < 200000; ++i) {
             client.prepareIndex("test8", "type0", "doc" + i).setSource("field0", null).execute().actionGet();
         }
         client.prepareIndex("test8", "type0", "docb").setSource("field1", null).setRefresh(true).execute().actionGet();
@@ -204,16 +200,15 @@ public class SimpleTests extends Assert {
                 .execute().actionGet();
         Uniqtermcount count = searchResponse.getAggregations().get("uniq0");
         assertNotNull(count);
-        double precision = ((double)count.getValue() / 1000000.);
+        double precision = ((double)count.getValue() / 100000.);
         assertTrue(precision >= 0.98, "The value is " + precision);
     }
 
     @Test
     public void assertTermCountAggregatorStressTestEightShard() {
-        // create index 'test4'
         client.admin().indices().prepareCreate("test9").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
 
-        for (int i = 0; i < 1000000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             client.prepareIndex("test9", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
         }
         client.prepareIndex("test9", "type0", "docb").setSource("field0", null).setRefresh(true).execute().actionGet();
@@ -224,22 +219,21 @@ public class SimpleTests extends Assert {
                 .execute().actionGet();
         Uniqtermcount count = searchResponse.getAggregations().get("uniq0");
         assertNotNull(count);
-        double precision = ((double)count.getValue() / 1000000.);
-        assertTrue(precision >= 0.96, "The value is " + precision);
+        double precision = ((double)count.getValue() / 100000.);
+        assertTrue(precision >= 0.87, "The value is " + precision);
     }
 
     @Test
     public void assertTermCountAggregatorStressTestTwoIndexes() {
-        // create index 'test4'
         client.admin().indices().prepareCreate("test10a").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
         client.admin().indices().prepareCreate("test10b").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
 
-        for (int i = 0; i < 1000000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             client.prepareIndex("test10a", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
         }
         client.prepareIndex("test10a", "type0", "docb").setSource("field0", null).setRefresh(true).execute().actionGet();
 
-        for (int i = 0; i < 1000000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             client.prepareIndex("test10b", "type0", "doc" + (i * 10)).setSource("field0", i * 10).execute().actionGet();
         }
         client.prepareIndex("test10b", "type0", "docb").setSource("field0", null).setRefresh(true).execute().actionGet();
@@ -250,24 +244,23 @@ public class SimpleTests extends Assert {
                 .execute().actionGet();
         Uniqtermcount count = searchResponse.getAggregations().get("uniq0");
         assertNotNull(count);
-        double precision = ((double)count.getValue() / 2000000.);
-        assertTrue(precision >= 0.91, "The value is " + precision);
+        double precision = ((double)count.getValue() / 200000.);
+        assertTrue(precision >= 0.83, "The value is " + precision);
     }
 
     @Test
     public void assertTermCountAggregatorStressStringTestTwoIndexes() {
-        // create index 'test4'
         client.admin().indices().prepareCreate("test11a").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
         client.admin().indices().prepareCreate("test11b").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
         Set<String> values = new HashSet<String>();
-        for (int i = 0; i < 1000000; ++i) {
+        for (int i = 0; i < 100000; ++i) {
             String val =  UUID.randomUUID().toString();
             values.add(val);
             client.prepareIndex("test11a", "type0", "doc" + i).setSource("field0", UUID.randomUUID().toString()).execute().actionGet();
         }
         client.prepareIndex("test11a", "type0", "docb").setSource("field1", null).setRefresh(true).execute().actionGet();
 
-        for (int i = 1000000; i < 2000000; ++i) {
+        for (int i = 100000; i < 200000; ++i) {
             String val =  UUID.randomUUID().toString();
             values.add(val);
             client.prepareIndex("test11b", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
@@ -286,27 +279,26 @@ public class SimpleTests extends Assert {
 
     @Test
     public void assertTermCountAggregatorTestEmptyIndexes() {
-        // create index 'test4'
-        client.admin().indices().prepareCreate("test10a").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
-        client.admin().indices().prepareCreate("test10b").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
+        client.admin().indices().prepareCreate("test12a").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
+        client.admin().indices().prepareCreate("test12b").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 8)).execute().actionGet();
 
-        for (int i = 0; i < 1000000; ++i) {
-            client.prepareIndex("test10a", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
+        for (int i = 0; i < 100000; ++i) {
+            client.prepareIndex("test12a", "type0", "doc" + i).setSource("field0", i).execute().actionGet();
         }
-        client.prepareIndex("test10a", "type0", "docb").setSource("field0", null).setRefresh(true).execute().actionGet();
+        client.prepareIndex("test12a", "type0", "docb").setSource("field0", null).setRefresh(true).execute().actionGet();
 
-        for (int i = 0; i < 1000000; ++i) {
-            client.prepareIndex("test10b", "type0", "doc" + (i * 10)).setSource("field1", i * 10).execute().actionGet();
+        for (int i = 0; i < 100000; ++i) {
+            client.prepareIndex("test12b", "type0", "doc" + (i * 10)).setSource("field1", i * 10).execute().actionGet();
         }
-        client.prepareIndex("test10b", "type0", "docb").setSource("field1", null).setRefresh(true).execute().actionGet();
+        client.prepareIndex("test12b", "type0", "docb").setSource("field1", null).setRefresh(true).execute().actionGet();
 
-        SearchResponse searchResponse = client.prepareSearch("test10*")
+        SearchResponse searchResponse = client.prepareSearch("test12*")
                 .setQuery(matchAllQuery())
                 .addAggregation(new UniqtermcountBuilder("uniq0").field("field0"))
                 .execute().actionGet();
         Uniqtermcount count = searchResponse.getAggregations().get("uniq0");
         assertNotNull(count);
-        double precision = ((double)count.getValue() / 1000000.);
-        assertTrue(precision >= 0.98, "The value is " + precision);
+        double precision = ((double)count.getValue() / 100000.);
+        assertTrue(precision >= 0.96, "The value is " + precision);
     }
 }
