@@ -186,7 +186,7 @@ public class SimpleTests extends Assert {
 
     @Test
     public void assertTermCountAggregatorLotsOfEmptyShard() {
-        client.admin().indices().prepareCreate("test6").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
+        client.admin().indices().prepareCreate("test6").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 16)).execute().actionGet();
         
         client.prepareIndex("test6", "type0", "doc0").setSource("field0", 42).execute().actionGet();
         client.prepareIndex("test6", "type0", "doc1").setSource("field1", 0).setRefresh(true).execute().actionGet();
