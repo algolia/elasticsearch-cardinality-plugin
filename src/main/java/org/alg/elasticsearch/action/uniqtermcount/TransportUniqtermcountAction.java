@@ -29,6 +29,7 @@ import org.elasticsearch.cluster.routing.ShardRouting;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.engine.Engine;
+import org.elasticsearch.index.mapper.FieldMapper;
 import org.elasticsearch.index.shard.service.InternalIndexShard;
 import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.search.aggregations.support.FieldDataSource;
@@ -154,7 +155,8 @@ public class TransportUniqtermcountAction
                             TermsEnum termsEnum = terms.iterator(null);
                             TermsEnum numericsEnum = NumericUtils.filterPrefixCodedLongs(termsEnum);
                             BytesRef text;// = termsEnum.next();
-                            if (!terms.hasFreqs()) { //Numeric term
+                            FieldMapper<?> fieldMapper = indexShard.mapperService().smartNameFieldMapper(field);
+                            if (fieldMapper != null && fieldMapper.isNumeric()) {
                                 while ((text = numericsEnum.next()) != null) {
                                         counter.offer(NumericUtils.prefixCodedToLong(text));
                                 }
