@@ -1,9 +1,7 @@
-Elasticsearch Uniq Term Count Plugin
+Elasticsearch Cardinality Plugin
 ===================================
 
 This plugin extends Elasticsearch providing a new type of aggregation and a REST action to estimate the cardinality (number of uniq terms) of a field.
-
-**Note:** This plugin is currently at an early stage of development.
 
 Installation
 ------------
@@ -14,11 +12,11 @@ Installation
 
 # Installation 
 
-    ./plugin --url elasticsearch-uniqtermcount-plugin-0.0.1.zip --install index-uniqtermcount
+    ./plugin --url elasticsearch-cardinality-plugin-0.0.1.zip --install index-cardinality
 
 # Uninstallation
 
-    ./plugin --remove index-uniqtermcount
+    ./plugin --remove index-cardinality
 
 Introduction
 ------------
@@ -29,7 +27,7 @@ REST Action
 -----------
 
 ```
-curl -XGET http://localhost:9200/INDEX/FIELD/_uniqtermcount
+curl -XGET http://localhost:9200/INDEX/FIELD/_cardinality
 ```
 
 ```json
@@ -42,8 +40,8 @@ Aggregation
 -----------
 ```json
   aggregations: {
-    uniq_user_count: {
-      uniqtermcount: {
+    uniq_users_count: {
+      cardinality: {
         field: 'user'
       }
     }
@@ -51,7 +49,7 @@ Aggregation
 ```
 
 ```json
-  uniq_user_count: {
+  uniq_users_count: {
     value: 42
   }
 ```

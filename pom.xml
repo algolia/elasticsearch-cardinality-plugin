@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.alg.elasticsearch</groupId>
-    <artifactId>elasticsearch-uniqtermcount-plugin</artifactId>
+    <artifactId>elasticsearch-cardinality-plugin</artifactId>
     <version>0.0.1</version>
 
     <packaging>jar</packaging>
 
-    <name>Elasticsearch Uniqtermcount Plugin</name>
+    <name>Elasticsearch Cardinality Plugin</name>
 
-    <url>http://github.com/algolia/elasticsearch-uniqtermcount-plugin</url>
+    <url>http://github.com/algolia/elasticsearch-cardinality-plugin</url>
 
 
     <licenses>
@@ -24,9 +24,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:algolia/elasticsearch-uniqtermcount-plugin</connection>
-        <developerConnection>scm:git:git@github.com:algolia/elasticsearch-uniqtermcount-plugin</developerConnection>
-        <url>http://github.com/algolia/elasticsearch-uniqtermcount-plugin</url>
+        <connection>scm:git:git@github.com:algolia/elasticsearch-cardinality-plugin</connection>
+        <developerConnection>scm:git:git@github.com:algolia/elasticsearch-cardinality-plugin</developerConnection>
+        <url>http://github.com/algolia/elasticsearch-cardinality-plugin</url>
     </scm>
 
     <properties>
