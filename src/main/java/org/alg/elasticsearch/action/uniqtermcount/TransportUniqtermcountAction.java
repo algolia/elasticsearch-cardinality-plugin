@@ -151,12 +151,12 @@ public class TransportUniqtermcountAction
                         Terms terms = fields.terms(field);
                         if (terms != null) {
                             TermsEnum termsEnum = terms.iterator(null);
-                            TermsEnum numericsEnum = NumericUtils.filterPrefixCodedLongs(termsEnum);
-                            BytesRef text;// = termsEnum.next();
+                            BytesRef text;
                             FieldMapper<?> fieldMapper = indexShard.mapperService().smartNameFieldMapper(field);
                             if (fieldMapper != null && fieldMapper.isNumeric()) {
+                                TermsEnum numericsEnum = NumericUtils.filterPrefixCodedLongs(termsEnum);
                                 while ((text = numericsEnum.next()) != null) {
-                                        counter.offer(NumericUtils.prefixCodedToLong(text));
+                                    counter.offer(NumericUtils.prefixCodedToLong(text));
                                 }
                             }
                             else {
