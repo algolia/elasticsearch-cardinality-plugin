@@ -41,12 +41,9 @@ public class SimpleTests extends Assert {
     public void startNode() {
         ImmutableSettings.Builder finalSettings = settingsBuilder()
                 .put("cluster.name", CLUSTER)
-                //.put("node.name", "node1")
                 .put("discovery.zen.ping.multicast.enabled", false)
-                //.put("discovery.zen.ping.unicast.hosts", "localhost")
                 .put("node.local", true)
                 .put("gateway.type", "none");
-                //.build();
         node = nodeBuilder().settings(finalSettings.put("node.name", "node1").build()).build().start();
         node2 = nodeBuilder().settings(finalSettings.put("node.name", "node2").build()).build().start();
 
