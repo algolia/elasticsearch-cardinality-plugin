@@ -30,12 +30,12 @@ class ShardUniqtermcountRequest extends BroadcastShardOperationRequest {
     @Override
     public void readFrom(StreamInput in) throws IOException {
         super.readFrom(in);
-        field = in.readString();
+        field = in.readOptionalString();
     }
 
     @Override
     public void writeTo(StreamOutput out) throws IOException {
         super.writeTo(out);
-        out.writeString(field);
+        out.writeOptionalString(field);
     }
 }

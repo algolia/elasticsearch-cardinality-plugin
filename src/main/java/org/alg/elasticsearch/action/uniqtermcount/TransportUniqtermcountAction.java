@@ -6,13 +6,15 @@ import static org.elasticsearch.common.collect.Lists.newLinkedList;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.logging.Logger;
 
-import org.apache.lucene.index.Fields;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
+import com.sun.tools.internal.xjc.generator.bean.field.SingleField;
+import org.apache.lucene.index.*;
+import org.apache.lucene.queryparser.flexible.core.util.StringUtils;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.NumericUtils;
+import org.apache.lucene.util.StringHelper;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ShardOperationFailedException;
 import org.elasticsearch.action.support.DefaultShardOperationFailedException;
@@ -29,6 +31,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.engine.Engine;
 import org.elasticsearch.index.shard.service.InternalIndexShard;
 import org.elasticsearch.indices.IndicesService;
+import org.elasticsearch.search.aggregations.support.FieldDataSource;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
 
@@ -85,6 +88,10 @@ public class TransportUniqtermcountAction
                     try {
                         merged.addAll(resp.getCounter());
                     } catch (Exception e) {
+                        failedShards++;
+                        if (shardFailures == null) {
+                            shardFailures = newLinkedList();
+                        }
                         shardFailures.add(new DefaultShardOperationFailedException(resp.getIndex(), i, e));
                     }
                 }
@@ -141,20 +148,23 @@ public class TransportUniqtermcountAction
                         continue;
                     }
                     if (request.getField() == null || field.equals(request.getField())) {
+
                         Terms terms = fields.terms(field);
                         if (terms != null) {
                             TermsEnum termsEnum = terms.iterator(null);
-                            BytesRef text;
-                            while ((text = termsEnum.next()) != null) {
-                                // skip invalid terms
-                                if (termsEnum.docFreq() < 1) {
-                                    continue;
+                            TermsEnum numericsEnum = NumericUtils.filterPrefixCodedLongs(termsEnum);
+                            BytesRef text;// = termsEnum.next();
+                            if (!terms.hasFreqs()) { //Numeric term
+                                while ((text = numericsEnum.next()) != null) {
+                                        counter.offer(NumericUtils.prefixCodedToLong(text));
                                 }
-                                if (termsEnum.totalTermFreq() < 1) {
-                                    continue;
-                                }
-                                counter.offer(text.utf8ToString());
                             }
+                            else {
+                                while ((text = termsEnum.next()) != null) {
+                                    counter.offer(text);
+                                }
+                            }
+
                         }
                     }
                 }

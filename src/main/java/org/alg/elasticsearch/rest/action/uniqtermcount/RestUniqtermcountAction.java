@@ -2,6 +2,7 @@
 package org.alg.elasticsearch.rest.action.uniqtermcount;
 
 import static org.elasticsearch.rest.RestRequest.Method.GET;
+import static org.elasticsearch.rest.RestRequest.Method.POST;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.action.support.RestActions.buildBroadcastShardsHeader;
 
@@ -30,8 +31,11 @@ public class RestUniqtermcountAction extends BaseRestHandler {
     public RestUniqtermcountAction(Settings settings, Client client, RestController controller) {
         super(settings, client);
         controller.registerHandler(GET, "/_uniqtermcount", this);
+        controller.registerHandler(POST, "/_uniqtermcount", this);
         controller.registerHandler(GET, "/{index}/_uniqtermcount", this);
+        controller.registerHandler(POST, "/{index}/_uniqtermcount", this);
         controller.registerHandler(GET, "/{index}/{field}/_uniqtermcount", this);
+        controller.registerHandler(POST, "/{index}/{field}/_uniqtermcount", this);
     }
 
     public void handleRequest(final RestRequest request, final RestChannel channel) {
@@ -46,6 +50,7 @@ public class RestUniqtermcountAction extends BaseRestHandler {
                     builder.startObject();
                     buildBroadcastShardsHeader(builder, response);
                     builder.field("count", response.getCount());
+                    builder.endObject();
                     channel.sendResponse(new XContentRestResponse(request, OK, builder));
                 } catch (Exception e) {
                     onFailure(e);

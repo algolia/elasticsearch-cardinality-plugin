@@ -34,24 +34,30 @@ public class SimpleTests extends Assert {
     protected final String CLUSTER = "test-cluster-" + NetworkUtils.getLocalAddress().getHostName();
 
     private Node node;
+    private Node node2;
 
     private Client client;
 
     @BeforeClass
     public void startNode() {
-        Settings finalSettings = settingsBuilder()
+        ImmutableSettings.Builder finalSettings = settingsBuilder()
                 .put("cluster.name", CLUSTER)
+                //.put("node.name", "node1")
                 .put("discovery.zen.ping.multicast.enabled", false)
+                //.put("discovery.zen.ping.unicast.hosts", "localhost")
                 .put("node.local", true)
-                .put("gateway.type", "none")
-                .build();
-        node = nodeBuilder().settings(finalSettings).build().start();
+                .put("gateway.type", "none");
+                //.build();
+        node = nodeBuilder().settings(finalSettings.put("node.name", "node1").build()).build().start();
+        node2 = nodeBuilder().settings(finalSettings.put("node.name", "node2").build()).build().start();
+
         client = node.client();
     }
 
     @AfterClass
     public void stopNode() {
         node.close();
+        node2.close();
     }
 
     @Test
@@ -59,7 +65,7 @@ public class SimpleTests extends Assert {
         NodesInfoResponse nodesInfoResponse = client.admin().cluster().prepareNodesInfo()
                 .clear().setPlugin(true).get();
         logger.info("{}", nodesInfoResponse);
-        assertEquals(nodesInfoResponse.getNodes().length, 1);
+        assertEquals(nodesInfoResponse.getNodes().length, 2);
         assertNotNull(nodesInfoResponse.getNodes()[0].getPlugins().getInfos());
         assertEquals(nodesInfoResponse.getNodes()[0].getPlugins().getInfos().size(), 1);
         assertEquals(nodesInfoResponse.getNodes()[0].getPlugins().getInfos().get(0).getName(), "index-uniqtermcount");
@@ -70,12 +76,12 @@ public class SimpleTests extends Assert {
     public void assertTermCountOneShard() {
         client.admin().indices().prepareCreate("test").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
 
-        client.prepareIndex("test", "type0", "doc0").setSource("field0", "foo bar").execute().actionGet();
-        client.prepareIndex("test", "type0", "doc1").setSource("field0", "foo").execute().actionGet();
+        client.prepareIndex("test", "type0", "doc0").setSource("field0", "foo bar").setRefresh(true).execute().actionGet();
+        client.prepareIndex("test", "type0", "doc1").setSource("field0", "foo").setRefresh(true).execute().actionGet();
         client.prepareIndex("test", "type0", "doc2").setSource("field1", "baz").setRefresh(true).execute().actionGet();
 
         UniqtermcountResponse response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test")).actionGet();
-        assertEquals(3, response.getCount());
+        assertEquals(response.getCount(), 3);
     }
     
     @Test
@@ -88,6 +94,22 @@ public class SimpleTests extends Assert {
 
         UniqtermcountResponse response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test2")).actionGet();
         assertEquals(2, response.getCount());
+    }
+
+    @Test
+    public void assertTermCountTwoIndices() {
+        client.admin().indices().prepareCreate("test2a").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
+        client.admin().indices().prepareCreate("test2b").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
+
+        // index document 'doc0' to shard 0 and 'doc1' to shard 1
+
+        client.prepareIndex("test2a", "type0", "doc1").setSource("field1", 42).setRefresh(true).execute().actionGet();
+        client.prepareIndex("test2a", "type0", "doc2").setSource("field2", 2).setRefresh(true).execute().actionGet();
+        client.prepareIndex("test2a", "type0", "doc3").setSource("field3", "1").setRefresh(true).execute().actionGet();
+        client.prepareIndex("test2a", "type0", "doc4").setSource("field4", "2324332").setRefresh(true).execute().actionGet();
+        client.prepareIndex("test2a", "type0", "doc0").setSource("field0", 3).setRefresh(true).execute().actionGet();
+        UniqtermcountResponse response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test2a")).actionGet();
+        assertEquals(5, response.getCount());
     }
     
     @Test
