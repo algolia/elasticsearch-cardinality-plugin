@@ -19,6 +19,11 @@ public class UniqtermcountRequest extends BroadcastOperationRequest<Uniqtermcoun
         super(indices);
         operationThreading(BroadcastOperationThreading.THREAD_PER_SHARD);
     }
+    
+    public UniqtermcountRequest withField(String field) {
+        setField(field);
+        return this;
+    }
 
     public void setField(String field) {
         this.field = field;
