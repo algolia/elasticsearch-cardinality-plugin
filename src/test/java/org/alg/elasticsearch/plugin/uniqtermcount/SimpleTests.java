@@ -72,7 +72,7 @@ public class SimpleTests extends Assert {
     }
     
     @Test
-    public void assertTermCountOneShard() {
+    public void assertTermCountActionOneShardString() {
         client.admin().indices().prepareCreate("test").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
 
         client.prepareIndex("test", "type0", "doc0").setSource("field0", "foo bar").setRefresh(true).execute().actionGet();
@@ -81,10 +81,28 @@ public class SimpleTests extends Assert {
 
         UniqtermcountResponse response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test")).actionGet();
         assertEquals(response.getCount(), 3);
+
+        response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test").withField("field0")).actionGet();
+        assertEquals(response.getCount(), 2);
+
+        response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test").withField("field1")).actionGet();
+        assertEquals(response.getCount(), 1);
     }
     
     @Test
-    public void assertTermCountTwoShard() {
+    public void assertTermCountActionOneShardNumerical() {
+        client.admin().indices().prepareCreate("test1").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
+
+        client.prepareIndex("test1", "type0", "doc0").setSource("field2", 42).execute().actionGet();
+        client.prepareIndex("test1", "type0", "doc1").setSource("field2", 42).execute().actionGet();
+        client.prepareIndex("test1", "type0", "doc2").setSource("field2", 51).setRefresh(true).execute().actionGet();
+
+        UniqtermcountResponse response = client.execute(UniqtermcountAction.INSTANCE, new UniqtermcountRequest("test1").withField("field2")).actionGet();
+        assertEquals(response.getCount(), 2);
+    }
+    
+    @Test
+    public void assertTermCountActionTwoShard() {
         client.admin().indices().prepareCreate("test2").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 2)).execute().actionGet();
 
         // index document 'doc0' to shard 0 and 'doc1' to shard 1
@@ -96,7 +114,7 @@ public class SimpleTests extends Assert {
     }
 
     @Test
-    public void assertTermCountTwoIndices() {
+    public void assertTermCountActionTwoIndices() {
         client.admin().indices().prepareCreate("test2a").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
         client.admin().indices().prepareCreate("test2b").setSettings(ImmutableSettings.settingsBuilder().put("index.number_of_shards", 1)).execute().actionGet();
 
