@@ -41,7 +41,8 @@ public class RestCardinalityAction extends BaseRestHandler {
     public void handleRequest(final RestRequest request, final RestChannel channel) {
         CardinalityRequest cardinalityRequest = new CardinalityRequest(
                 Strings.splitStringByCommaToArray(request.param("index")));
-        cardinalityRequest.setField(request.param("field"));
+        //cardinalityRequest.withField(request.param("field"));
+        cardinalityRequest.withField(request.param("type")); //Temporary
         client.execute(CardinalityAction.INSTANCE, cardinalityRequest, new ActionListener<CardinalityResponse>() {
 
             public void onResponse(CardinalityResponse response) {

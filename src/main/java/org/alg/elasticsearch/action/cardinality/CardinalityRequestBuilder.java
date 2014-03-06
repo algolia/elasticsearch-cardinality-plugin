@@ -19,4 +19,9 @@ public class CardinalityRequestBuilder extends BroadcastOperationRequestBuilder<
     protected void doExecute(ActionListener<CardinalityResponse> listener) {
         ((Client) client).execute(CardinalityAction.INSTANCE, request, listener);
     }
+
+    public CardinalityRequestBuilder setField(String field) {
+        request.setField(field);
+        return this;
+    }
 }
