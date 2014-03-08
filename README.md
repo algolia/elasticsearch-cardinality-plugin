@@ -1,3 +1,5 @@
+**Disclaimer:** While we're **not using ElasticSearch** for [Algolia](http://www.algolia.com)'s hosted full-text, numerical & faceted search engine; we're using it for internal analytics (faceting over billions of API calls, no FTS).
+
 Elasticsearch Cardinality Plugin
 ===================================
 
