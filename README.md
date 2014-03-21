@@ -108,7 +108,7 @@ For example, to estimate the number of uniq IPs in a result set, use the followi
 
 ### Installation 
 
-    ./plugin --url elasticsearch-cardinality-plugin-0.0.1.zip --install index-cardinality
+    ./plugin --url file:///absolute/path/to/elasticsearch-cardinality-plugin-0.0.1.zip --install index-cardinality
 
 ### Uninstallation
 
